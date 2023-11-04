@@ -1,2 +1,14 @@
 # DBMS
 An implementation of DBMS based on UW-Madison CS564 &amp; CS764
+***
+## Buffer Management
+This module of the project involves implementing a buffer manager for database system. A database buffer pool is an array of fixed-sized memory buffers called frames that are used to hold database pages (also called disk blocks) that have been read from disk into memory. A page is the unit of transfer between the disk and the buffer pool residing in main memory. Most modern database systems use a page size of at least 8,192 bytes. Another important thing to note is that a database page in memory is an exact copy of the corresponding page on disk when it is first read in. Once a page has been read from disk to the buffer pool, the DBMS software can update information stored on the page, causing the copy in the buffer pool to be different from the copy on disk. Such pages are termed “dirty”.
+
+Since the database on disk itself is usually about 100 times larger than amount of main memory available on a machine, only a subset of the database pages can fit in memory at any given time. The buffer manager is used to control which pages are memory resident. Whenever the buffer manager receives a request for a data page, the buffer manager must check to see whether the requested page is already in the one of the frames that constitute the buffer pool. If so, the buffer manager simply returns a pointer to the page. If not, the buffer manager frees a frame (possibly by writing to disk the page it contains if the page is dirty) and then reads in the requested page from disk into the frame that has been freed.
+
+The I/O layer provides an object-oriented interface to the Unix file with methods to open and close files and to read/write pages of a file. Class File has methods to read and write pages of the File.
+## Related Courses
++ **CS564 - Database Management Systems: Design and Implementation** 
+What a database management system is; different data models currently used to structure the logical view of the database: relational, hierarchical, and network. Hands-on experience with relational and network-based database systems. Implementation techniques for database systems. File organization, query processing, concurrency control, rollback and recovery, integrity and consistency, and view implementation.
++ **CS764 - Topics in Database Management Systems**
+Implementation of database management systems, the impact of new technology on database management systems, back-end database computers, distributed database management systems, concurrency control, and query execution in both distributed and centralized systems, implementation of multiple user views, roll-back and recovery mechanisms, database translation.
