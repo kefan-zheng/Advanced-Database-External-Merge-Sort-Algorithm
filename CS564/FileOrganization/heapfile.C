@@ -1,7 +1,7 @@
 #include "heapfile.h"
 #include "error.h"
 
-// routine to create a heapfile
+// routine to create a heapfile //
 const Status createHeapFile(const string fileName)
 {
     File* 		file;
@@ -95,7 +95,7 @@ HeapFile::HeapFile(const string & fileName, Status& returnStatus)
         }
         // set header page and corresponding dirty flag
         headerPage = (FileHdrPage*) pagePtr;
-        hdrDirtyFlag = false;
+        hdrDirtyFlag = true;
 
         // read and pin the first data page
 		curPageNo = headerPage->firstPage;
@@ -104,7 +104,7 @@ HeapFile::HeapFile(const string & fileName, Status& returnStatus)
             returnStatus = status;
             return;
         }
-        curDirtyFlag = false;
+        curDirtyFlag = true;
         curRec = NULLRID;
         returnStatus = OK;
     }
@@ -450,14 +450,23 @@ const Status InsertFileScan::insertRecord(const Record & rec, RID& outRid)
     }
 
     // check if page null
-    if(curPage != NULL){
-        unpinstatus = bufMgr->unPinPage(filePtr, curPageNo, true);
-        if(unpinstatus != OK) return unpinstatus;
+    if(curPage == NULL){
+        // read last page into buffer
+        curPageNo = headerPage->lastPage;
+        status = bufMgr->readPage(filePtr, curPageNo, curPage);
+        if(status != OK) return status;
+    }else{
+        if(curPageNo != headerPage->lastPage){
+            // unpin curpage
+            unpinstatus = bufMgr->unPinPage(filePtr, curPageNo, true);
+            if(unpinstatus != OK) return unpinstatus;
+
+            // read last page into buffer
+            curPageNo = headerPage->lastPage;
+            status = bufMgr->readPage(filePtr, curPageNo, curPage);
+            if(status != OK) return status;
+        }
     }
-    // read last page into buffer
-    curPageNo = headerPage->lastPage;
-    status = bufMgr->readPage(filePtr, curPageNo, curPage);
-    if(status != OK) return status;
     
     // try insert
     if((status = curPage->insertRecord(rec, rid)) == OK){
